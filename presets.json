@@ -1,0 +1,74 @@
+{
+  "1": {
+    "fader1": {
+      "ch_brightness": 1,
+      "ch_color": 2,
+      "brightness": 1,
+      "temp": 0,
+      "label": "label1"
+    },
+    "fader2": {
+      "ch_brightness": 3,
+      "ch_color": 4,
+      "brightness": 1,
+      "temp": 0,
+      "label": "label2"
+    },
+    "fader3": {
+      "ch_brightness": 5,
+      "ch_color": 6,
+      "brightness": 1,
+      "temp": 1,
+      "label": "label3"
+    },
+    "fader4": {
+      "ch_brightness": 7,
+      "ch_color": 8,
+      "brightness": 1,
+      "temp": 0,
+      "label": "label4"
+    },
+    "fader5": {
+      "ch_brightness": 9,
+      "ch_color": 10,
+      "brightness": 1,
+      "temp": 1,
+      "label": "label5"
+    },
+    "fader6": {
+      "ch_brightness": 11,
+      "ch_color": 12,
+      "brightness": 0,
+      "temp": 0,
+      "label": "label6"
+    },
+    "fader7": {
+      "ch_brightness": 13,
+      "ch_color": 14,
+      "brightness": 0,
+      "temp": 1,
+      "label": "label7"
+    },
+    "fader8": {
+      "ch_brightness": 15,
+      "ch_color": 16,
+      "brightness": 0,
+      "temp": 0,
+      "label": "label8"
+    },
+    "fader9": {
+      "ch_brightness": 17,
+      "ch_color": 18,
+      "brightness": 0,
+      "temp": 1,
+      "label": "label9"
+    },
+    "fader10": {
+      "ch_brightness": 19,
+      "ch_color": 20,
+      "brightness": 0,
+      "temp": 0.9053102135658264,
+      "label": "label10"
+    }
+  }
+}
