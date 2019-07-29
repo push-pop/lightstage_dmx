@@ -4,6 +4,7 @@ var presets = require('./presets.json')
 const fs = require('fs');
 
 var faders = mappings;
+var masterFaders = mappings.fadermaster;
 
 var {
   Server,
@@ -11,7 +12,7 @@ var {
 } = require('node-osc');
 
 var oscServer = new Server(7700, '0.0.0.0');
-var oscClient = new Client('192.168.88.211', 9000);
+var oscClient = new Client('192.168.88.255', 9000);
 
 const dmx = new DMX();
 
@@ -19,10 +20,8 @@ const universe = dmx.addUniverse('lightstage', 'enttec-usb-dmx-pro', 'COM8');
 
 var channels = {}
 
-let on = false;
 let isChanging = false;
 let needSave = false;
-let needsUpdate = true;
 
 const map_range = (value, low1, high1, low2, high2) => {
   return low2 + (high2 - low2) * (value - low1) / (high1 - low1);
@@ -32,8 +31,8 @@ const updateChannels = () => {
   for (var key in faders) {
     var fader = faders[key];
 
-    channels[fader.ch_brightness] = toDMX(fader.brightness);
-    channels[fader.ch_color] = toDMX(fader.temp);
+    channels[fader.ch_brightness] = toDMX(fader.brightness * masterFaders.brightness);
+    channels[fader.ch_color] = toDMX(fader.temp * masterFaders.temp);
   }
 }
 
@@ -41,12 +40,11 @@ const setAllColor = (val) => {
   for (var key in faders) {
     faders[key].temp = map_range(val, 2600, 6000, 0, 1);
   }
-  console.log('temp' + map_range(val, 2600, 6000, 0, 1));
+  // console.log('temp' + map_range(val, 2600, 6000, 0, 1));
 }
 
-const toPercent = (val)=>{
+const toPercent = (val) => {
   var out = `${val*100}%`;
-  console.log(out);
   return `${Math.floor(val*100)}%`
 }
 
@@ -54,13 +52,12 @@ const toDMX = (val) => {
   return Math.floor(val * 255);
 }
 
-const toColorTemp = (val)=>{
+const toColorTemp = (val) => {
   return `${Math.floor(map_range(val, 0, 1, 2600, 6000))}K`;
 }
 
 updateChannels();
 
-console.log(channels);
 
 universe.update(channels);
 
@@ -68,7 +65,6 @@ oscServer.on('message', function (msg) {
 
   var endpt = msg[0].split('/');
   var cmd = endpt[1];
-  console.log(msg);
   if (endpt.length > 2) {
 
     isChanging = true;
@@ -76,10 +72,11 @@ oscServer.on('message', function (msg) {
     needsUpdate = true;
 
     if (cmd == 'brightness') {
+
       var fader = endpt[2];
+      console.log('brightness ' + fader + " to " + msg[1])
 
       faders[fader].brightness = msg[1];
-      console.log('brightness ' + fader + " to " + msg[1])
       oscClient.send('/brightness/' + faders[fader].label, toPercent(faders[fader].brightness));
 
     } else if (cmd == 'color') {
@@ -87,7 +84,10 @@ oscServer.on('message', function (msg) {
 
       faders[fader].temp = msg[1];
       console.log('color ' + fader + " to " + msg[1])
-      oscClient.send('/color/' + faders[fader].label, toColorTemp(faders[fader].temp));
+      if (fader == 'fadermaster')
+        oscClient.send('/color/' + faders[fader].label, toPercent(faders[fader].temp));
+      else
+        oscClient.send('/color/' + faders[fader].label, toColorTemp(faders[fader].temp));
     } else if (cmd == 'preset') {
       var presetCmd = endpt[2];
 
@@ -126,17 +126,8 @@ oscServer.on('message', function (msg) {
   universe.update(channels);
 });
 
-
-
-
-const updateClients = (key, value) => {
-  oscClient.send(key, value);
-}
-
 setInterval(() => {
-  isChanging = false;
-
-  if (needsUpdate) {
+  if (!isChanging) {
     for (var key in faders) {
       var fader = faders[key];
 
@@ -144,13 +135,17 @@ setInterval(() => {
       oscClient.send('/color/' + key, fader.temp);
 
       oscClient.send('/brightness/' + fader.label, toPercent(fader.brightness));
+      if(fader == masterFaders)
+      oscClient.send('/color/' + fader.label, toPercent(fader.temp));
+      else
       oscClient.send('/color/' + fader.label, toColorTemp(fader.temp));
 
       needsUpdate = false;
     }
   }
 
-}, 200);
+  isChanging = false;
+}, 1000);
 
 setInterval(() => {
   if (needSave && !isChanging) {
