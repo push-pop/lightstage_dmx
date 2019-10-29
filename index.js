@@ -12,7 +12,7 @@ var {
 } = require('node-osc');
 
 var oscServer = new Server(7700, '0.0.0.0');
-var oscClient = new Client('192.168.88.255', 9000);
+var oscClient = new Client('192.168.1.2', 9000);
 
 const dmx = new DMX();
 
