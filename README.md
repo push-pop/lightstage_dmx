@@ -23,6 +23,8 @@ const universe = dmx.addUniverse('lightstage', 'enttec-usb-dmx-pro', 'COM8');
 ```
 
 If you have a dedicated device for TouchOSC edit this line in index.js with the IP Address of the device:
+
+Note: As far as I can tell node-osc does not support multicasting or broadcasting, which is why we have to set this...
 ```
 var oscClient = new Client('192.168.1.2', 9000);
 ```
